@@ -1,5 +1,6 @@
 package com.kimi.demo;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import org.beetl.core.resource.ClasspathResourceLoader;
 import org.beetl.ext.spring.BeetlGroupUtilConfiguration;
 import org.beetl.ext.spring.BeetlSpringViewResolver;
@@ -14,7 +15,7 @@ import org.beetl.sql.ext.spring4.SqlManagerFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -58,6 +59,13 @@ public class DemoApplication {
         return conf;
     }
 
+    //配置数据库
+    @Bean(name="datasource", initMethod = "init", destroyMethod = "close")
+    @ConfigurationProperties(prefix = "spring.datasource.druid")
+    public DruidDataSource getDataSource() {
+        return new DruidDataSource();
+    }
+
     @Bean(name = "sqlManagerFactoryBean")
     @Primary
     public SqlManagerFactoryBean getSqlManagerFactoryBean(@Qualifier("datasource") DataSource datasource) {
@@ -71,12 +79,6 @@ public class DemoApplication {
         factory.setNc(new UnderlinedNameConversion());
         factory.setSqlLoader(new ClasspathLoader("/sql"));
         return factory;
-    }
-
-    //配置数据库
-    @Bean(name = "datasource")
-    public DataSource getDataSource() {
-        return DataSourceBuilder.create().url("jdbc:mysql://127.0.0.1:3306/test").username("root").password("123").build();
     }
 
     //开启事务
