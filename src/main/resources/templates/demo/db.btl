@@ -1,0 +1,3 @@
+<%for(var user in users) {%>
+    ${user.name}
+<%}%>
